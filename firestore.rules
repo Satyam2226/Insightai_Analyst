@@ -1,0 +1,40 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['email']) && 
+             data.email is string;
+    }
+
+    function isValidAnalysis(data) {
+      return data.keys().hasAll(['userId', 'datasetName', 'query', 'createdAt']) && 
+             data.userId == request.auth.uid &&
+             data.datasetName is string &&
+             data.query is string;
+    }
+
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow create, update: if isOwner(userId) && isValidUser(request.resource.data);
+      
+      match /history/{analysisId} {
+        allow list, get: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidAnalysis(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+    }
+  }
+}

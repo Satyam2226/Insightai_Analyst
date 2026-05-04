@@ -1,0 +1,41 @@
+{
+  "entities": {
+    "user": {
+      "title": "User Profile",
+      "description": "User specific information and preferences",
+      "type": "object",
+      "properties": {
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "lastLogin": { "type": "string", "format": "date-time" }
+      },
+      "required": ["email"]
+    },
+    "analysis": {
+      "title": "Analysis Result",
+      "description": "Saved analysis results and charts",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "datasetName": { "type": "string" },
+        "query": { "type": "string" },
+        "analysis": { "type": "string" },
+        "chartData": { "type": "string" },
+        "chartType": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "datasetName", "query", "createdAt"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "user",
+      "description": "User profiles"
+    },
+    "users/{userId}/history/{analysisId}": {
+      "schema": "analysis",
+      "description": "User analysis history"
+    }
+  }
+}
